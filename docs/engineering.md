@@ -2,7 +2,7 @@
 
 The code is meant to stay small: one folder, one module per job, four commands.
 
-No code has been written yet. Each module in `wiser/` holds only a short description of what goes in it.
+`data.py`, `calibrate.py` and `metrics.py` are written and tested. The other modules hold only a short description of what goes in them.
 
 ## Layout
 
@@ -50,7 +50,7 @@ Run these from the repository root, in order:
 
 | File | Written by | Contents |
 |---|---|---|
-| `outputs/data/` | `wiser.data` | `inputs.npy`: float32 `[N, 12, 64, 64]`<br>`labels.npy`: int8 `[N, 64, 64]`<br>`tiles.csv`: one row per tile, with split, role, crop offset and counts |
+| `outputs/data/` | `wiser.data` | `inputs.npy`: float32 `[N, 12, 64, 64]`<br>`labels.npy`: int8 `[N, 64, 64]`<br>`tiles.csv`: one row per tile, with split, role, crop offset, counts and an `is_copy` flag for exact repeats |
 | `outputs/scores/<model>_seed<k>/` | `wiser.train` | `scores.npy`: float32 logits for every validation, calibration and test crop<br>`tile_ids.npy`<br>`meta.json`: model, seed, git commit, training time |
 | `outputs/results.csv` | `wiser.evaluate` | One row per (model, rule, α, check, metric), with the value and its interval |
 

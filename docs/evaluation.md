@@ -47,6 +47,7 @@ A teammate who didn't write the rule reviews it.
   - reproduce persistence precision and recall (35.7 % / 27.3 %);
   - run the distance buffer through calibration end to end.
 - **Done when** the numbers are in and persistence matches within about 1.5 points, or the gap is explained.
+- **Status:** done on 2026-11-15. Persistence matches exactly on full tiles; the numbers are in [data §6](data.md). The buffer end to end is still to do.
 
 ### 2 · Does it hold? (RQ1)
 
