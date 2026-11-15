@@ -63,6 +63,9 @@ Never cut:
 | 15 | Keep a 2 MB copy of the proposal at `docs/proposal.pdf`; the 12.9 MB original stays out of the repo | Same slides at the same resolution, a sixth of the size | Confirmed by the user (2026-11-15) |
 | 16 | Simple code layout: one `wiser/` folder with one module per job, and a `requirements.txt`. No `src/` and no `pyproject.toml`. | Keeps the code base small and easy to follow ([engineering](engineering.md)) | Confirmed by the user (2026-11-15) |
 | 17 | Leave out exact repeat tiles, keeping the first of each group | 860 tiles are exact repeats ([data §6](data.md)); keeping them would count the same fire twice | Proposed |
+| 18 | No flips or rotations when training | Flipping an image changes the wind direction; skipping them keeps things simple | Confirmed by the user (2026-11-15) |
+| 19 | Report two distance buffers: `buffer_window` (distance inside the window, the same view the models get) and `buffer_tile` (distance on the whole tile) | The window-only buffer flags everything at 5 % and 10 %; the whole-tile one is the tougher, more realistic rule | Confirmed by the user (2026-11-15) |
+| 20 | Keep the targets at α = 5 % and 10 %; no easier 20 % target for now | Keep the comparison simple | Confirmed by the user (2026-11-15) |
 
 ## Open questions
 
@@ -70,7 +73,6 @@ Never cut:
 |---|---|---|
 | For the instructor: the due date; how code and demo are submitted; the AI-tool policy; whether the change of scope from the proposal is acceptable | Plan and grading | Week 1 |
 | Who owns each area? | Accountability | Week 1 |
-| Wind direction under flips and rotations: rotate (u, v) components, or skip those augmentations? | Correct augmentation | Week 1 |
 | τ and α_pop for the exposure version | They must be fixed on validation data before calibration | Week 2 |
 | Has anyone published per-crop or exposure-aware CRC for wildfire maps since November 2026? | Novelty wording | Week 2 |
 

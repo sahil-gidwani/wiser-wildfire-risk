@@ -47,7 +47,12 @@ A teammate who didn't write the rule reviews it.
   - reproduce persistence precision and recall (35.7 % / 27.3 %);
   - run the distance buffer through calibration end to end.
 - **Done when** the numbers are in and persistence matches within about 1.5 points, or the gap is explained.
-- **Status:** done on 2026-11-15. Persistence matches exactly on full tiles; the numbers are in [data §6](data.md). The buffer end to end is still to do.
+- **Status:** done on 2026-11-15. Persistence matches exactly on full tiles; the numbers are in [data §6](data.md).
+- **Buffer end to end** (cutoffs picked on calibration crops, measured on validation crops; the test crops stay untouched):
+  - 25 % of the calibration crops with fire tomorrow have no fire today inside the window, and they hold 14 % of tomorrow's fire. The window-only buffer can't rank anything in them, so every rule flags everything at 5 % and at 10 %.
+  - Measuring distance on the whole tile instead, WISER picks a radius of 21–31 km and flags 62–83 % of the land.
+  - Persistence also has to flag everything. At the fixed cutoff 0 (today's fire only) it flags 1.5 % of the land and misses 74–78 % of tomorrow's fire, including all new fire.
+  - AP on validation crops: buffer 0.218, persistence 0.108.
 
 ### 2 · Does it hold? (RQ1)
 
@@ -62,7 +67,7 @@ A teammate who didn't write the rule reviews it.
 
 ### 3 · What does it cost? (RQ2)
 
-- **Do:** apply WISER capped at α = 5 % and 10 % to each model: flag everything, persistence, distance buffer, gradient-boosted trees, fire-only U-Net and Tiny U-Net.
+- **Do:** apply WISER capped at α = 5 % and 10 % to each model: flag everything, persistence, the two distance buffers (window only and whole tile), gradient-boosted trees, fire-only U-Net and Tiny U-Net.
 - **Output:**
   - flagged area for each model, plus the buffer radius in km;
   - AP for each model;

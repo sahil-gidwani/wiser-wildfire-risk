@@ -144,7 +144,7 @@ All rules use the same U-Net scores and the same calibration crops.
 |---|---|---|
 | Flag everything | — | Upper bound on area, and the fallback |
 | Persistence | Tomorrow = today | The standard reference. Reproducing its published precision and recall checks our metric code. |
-| Distance buffer | Flag within r km of today's fire, with r set by the WISER rule | Shows how much learning adds over "near today's fire" |
+| Distance buffers | Flag within r km of today's fire, with r set by the WISER rule. Two versions: distance measured inside the window only (`buffer_window`, the same view the models get) or on the whole tile (`buffer_tile`). | Shows how much learning adds over "near today's fire" |
 | Gradient-boosted trees | LightGBM (Ke 2017), with scikit-learn's `HistGradientBoostingClassifier` as fallback; about 500 trees. Per-pixel features: the 12 inputs, distance to today's fire, and fire counts in the 3 × 3 and 7 × 7 neighbourhoods. | A simple learned baseline |
 | **Tiny U-Net** (main) | A U-Net (Ronneberger 2015) with about 470K parameters: 12 → 32 → 64 channels, 128 at the bottleneck, two decoder blocks with skip connections. The same size as the anchor paper's. | The main model |
 | Fire-only U-Net | The same U-Net with today's fire mask as its only input | Tests whether the other 11 inputs help |
