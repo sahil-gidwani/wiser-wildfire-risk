@@ -2,7 +2,7 @@
 
 The code is meant to stay small: one folder, one module per job, four commands.
 
-`data.py`, `calibrate.py` and `metrics.py` are written and tested. The other modules hold only a short description of what goes in them.
+`data.py`, `calibrate.py` and `metrics.py` are written and tested. `models.py` and `train.py` have the three baselines (persistence and the two distance buffers), and `evaluate.py` has a first version that measures on validation crops. The U-Net, the trees and `demo.py` are still to come.
 
 ## Layout
 
@@ -35,7 +35,7 @@ Run these from the repository root, in order:
 | 3. Run the experiments | `python -m wiser.evaluate` | `outputs/results.csv`, `outputs/figures/` |
 | 4. Build the demo | `python -m wiser.demo` | `outputs/demo/index.html` |
 
-- Step 2 runs once for each model and seed.
+- Step 2 runs once for each model and seed. The baselines need no training: `--model persistence`, `--model buffer_window` or `--model buffer_tile`.
 - Steps 3 and 4 only read saved files, so they are quick to re-run.
 - Run the tests with `python -m pytest`.
 
