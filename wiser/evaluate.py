@@ -1,4 +1,4 @@
-"""Run the experiments in docs/evaluation.md, using saved scores only.
+"""Run the experiments, using saved scores only.
 
 - Validity checks: random re-splits of calibration and test crops, and the official split.
 - Cost: flagged area for each model at the same target.

@@ -1,4 +1,4 @@
-# Python 3.12 or 3.13. Setup steps are in README.md.
+# Python 3.12 or 3.13.
 # These are minimum versions. Once everything installs on one laptop, pin the
 # exact versions (pip freeze) so all three laptops match.
 

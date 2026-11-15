@@ -7,8 +7,7 @@
    - labels.npy: int8 [N, 64, 64], tomorrow's fire: 1 fire, 0 no fire, -1 unknown;
    - tiles.csv: one row per tile with its file, split, data role, crop offset and counts.
      Tiles that exactly repeat an earlier tile are marked is_copy and left out by load().
-3. Run the week-1 data checks (docs/data.md, section 6), print them and save them
-   to outputs/data/checks.txt.
+3. Run the week-1 data checks, print them and save them to outputs/data/checks.txt.
 
 Run: python -m wiser.data
 """
@@ -192,7 +191,7 @@ def data_roles(tiles, rng):
 # ---- Week-1 data checks ----
 
 def data_checks():
-    """The checks of docs/data.md, section 6, as printable text."""
+    """The week-1 data checks, as printable text."""
     inputs, labels, tiles = load(keep_copies=True)
     y = np.asarray(labels)  # about 76 MB
     today = np.asarray(inputs[:, FIRE_TODAY]).astype(np.int8)
