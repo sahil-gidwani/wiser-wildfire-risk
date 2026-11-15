@@ -9,6 +9,7 @@ scikit-learn>=1.4
 matplotlib>=3.8
 torch>=2.2          # uses the Apple GPU (MPS) when available
 tfrecord>=1.14      # reads the NDWS TFRecords without TensorFlow
+kagglehub>=0.3      # downloads NDWS from Kaggle (no login needed)
 mapie>=1.0          # cross-checks our calibration code
 pytest>=8
 
