@@ -24,6 +24,7 @@ We test whether this promise holds on the NDWS dataset, and how much of the map 
 | [background](background.md) | What the literature says |
 | [glossary](glossary.md) | Terms and symbols in plain words |
 | [references](references.md) | Sources |
+| [proposal.pdf](proposal.pdf) | The original proposal slides (compressed copy) |
 
 New to the project? Read this page, then [project-brief](project-brief.md), [method](method.md) and [plan](plan.md). That takes about 20 minutes.
 

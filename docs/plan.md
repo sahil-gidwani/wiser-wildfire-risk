@@ -60,6 +60,7 @@ Never cut:
 | 12 | Models: trees, Tiny U-Net (main), fire-only U-Net. No Swin unless the instructor asks; no ResGNN. | Swin evidence; ResGNN added nothing | Proposed |
 | 13 | Write our own code; copy nothing from the anchor paper's repository | It has no licence | Proposed |
 | 14 | The wording rules in [evaluation](evaluation.md) apply to the code README and the demo | Avoids overclaiming | Proposed |
+| 15 | Keep a 2 MB copy of the proposal at `docs/proposal.pdf`; the 12.9 MB original stays out of the repo | Same slides at the same resolution, a sixth of the size | Confirmed by the user (2026-11-15) |
 
 ## Open questions
 
@@ -69,7 +70,6 @@ Never cut:
 | Who owns each area? | Accountability | Week 1 |
 | Data-check numbers: fire share (about 1 %, versus 5 % in the anchor paper), fire pixels per crop, centring, duplicates, populated fire pixels | These settle the crops, the cap `c` and the size of the exposure experiment | Week 1 |
 | Wind direction under flips and rotations: rotate (u, v) components, or skip those augmentations? | Correct augmentation | Week 1 |
-| Commit `proposal.pdf` (12.9 MB) to git? | Repository size | Week 1 |
 | τ and α_pop for the exposure version | They must be fixed on validation data before calibration | Week 2 |
 | Has anyone published per-crop or exposure-aware CRC for wildfire maps since November 2026? | Novelty wording | Week 2 |
 

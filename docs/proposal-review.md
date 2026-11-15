@@ -1,6 +1,6 @@
 # Proposal review
 
-We fact-checked the initial proposal (`proposal.pdf`, 8 slides) claim by claim and audited the paper it builds on. Short version: **the problem is right, but the foundation and the three proposed improvements don't hold up as written.**
+We fact-checked the initial proposal ([proposal.pdf](proposal.pdf), 8 slides) claim by claim and audited the paper it builds on. Short version: **the problem is right, but the foundation and the three proposed improvements don't hold up as written.**
 
 Of 31 claims checked:
 
