@@ -19,7 +19,7 @@ wiser-wildfire-risk/
 │   ├── metrics.py     # miss rates, flagged area, AP
 │   ├── evaluate.py    # the experiments: checks, results table, figures
 │   └── demo.py        # the HTML gallery
-├── tests/             # tests for calibrate.py and metrics.py (added with the first code)
+├── tests/             # tests, run with: python -m pytest
 ├── data/              # raw NDWS download (not in git)
 └── outputs/           # converted data, scores, results, figures, demo (not in git)
 ```
@@ -37,6 +37,7 @@ Run these from the repository root, in order:
 
 - Step 2 runs once for each model and seed.
 - Steps 3 and 4 only read saved files, so they are quick to re-run.
+- Run the tests with `python -m pytest`.
 
 ## Keeping the code simple
 
@@ -62,7 +63,7 @@ Rules for these files:
 
 The setup commands are in the root [README](../README.md).
 
-- **Python 3.12.**
+- **Python 3.12 or 3.13.**
 - **Versions:** `requirements.txt` lists minimum versions. Once everything installs on one laptop, pin the exact versions with `pip freeze`, so all three laptops match.
 - **LightGBM** is optional and commented out in `requirements.txt`. scikit-learn's `HistGradientBoostingClassifier` does the same job.
 
