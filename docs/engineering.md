@@ -63,7 +63,7 @@ Rules for these files:
 
 The setup commands are in the root [README](../README.md).
 
-- **Python 3.12.**
+- **Python 3.12 or 3.13.**
 - **Versions:** `requirements.txt` lists minimum versions. Once everything installs on one laptop, pin the exact versions with `pip freeze`, so all three laptops match.
 - **LightGBM** is optional and commented out in `requirements.txt`. scikit-learn's `HistGradientBoostingClassifier` does the same job.
 
