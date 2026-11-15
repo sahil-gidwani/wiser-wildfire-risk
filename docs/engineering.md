@@ -19,7 +19,7 @@ wiser-wildfire-risk/
 │   ├── metrics.py     # miss rates, flagged area, AP
 │   ├── evaluate.py    # the experiments: checks, results table, figures
 │   └── demo.py        # the HTML gallery
-├── tests/             # tests for calibrate.py and metrics.py (added with the first code)
+├── tests/             # tests, run with: python -m pytest
 ├── data/              # raw NDWS download (not in git)
 └── outputs/           # converted data, scores, results, figures, demo (not in git)
 ```
@@ -37,6 +37,7 @@ Run these from the repository root, in order:
 
 - Step 2 runs once for each model and seed.
 - Steps 3 and 4 only read saved files, so they are quick to re-run.
+- Run the tests with `python -m pytest`.
 
 ## Keeping the code simple
 
