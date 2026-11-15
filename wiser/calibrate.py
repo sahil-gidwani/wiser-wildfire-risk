@@ -1,7 +1,7 @@
 """Choose the cutoff.
 
 - The WISER rule for the per-crop, pooled, capped and populated miss rates,
-  solved exactly (docs/method.md, section 4).
+  solved exactly.
 - The comparison rules: a fixed 0.5 cutoff and the pixel-pooled rule of Dayan 2026.
 
 Works only on saved scores, in float64 on the CPU. A pixel is flagged when its score >= the cutoff.
@@ -53,7 +53,7 @@ def pixel_pooled_cutoff(scores, positives, alpha):
 
 
 def two_cutoffs(scores, fire, populated, alpha, alpha_pop, cap=CAP):
-    """Exposure-aware version (docs/method.md, section 7).
+    """Exposure-aware version.
 
     Populated pixels get their own cutoff for a per-crop miss rate of at most alpha_pop.
     All other pixels use the capped rule at alpha.

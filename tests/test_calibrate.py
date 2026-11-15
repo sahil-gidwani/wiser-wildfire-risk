@@ -1,4 +1,4 @@
-"""Checks for the calibration code on synthetic crops (docs/evaluation.md, "Validity checks").
+"""Checks for the calibration code on synthetic crops.
 
 Run: python -m pytest
 """
