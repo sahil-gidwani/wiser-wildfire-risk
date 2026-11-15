@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# WISER: raw data and everything the code writes
+data/
+outputs/
+
+# macOS
+.DS_Store

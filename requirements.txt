@@ -1,0 +1,17 @@
+# Python 3.12. Setup steps are in README.md.
+# These are minimum versions. Once everything installs on one laptop, pin the
+# exact versions (pip freeze) so all three laptops match.
+
+numpy>=1.26
+scipy>=1.11
+pandas>=2.1
+scikit-learn>=1.4
+matplotlib>=3.8
+torch>=2.2          # uses the Apple GPU (MPS) when available
+tfrecord>=1.14      # reads the NDWS TFRecords without TensorFlow
+mapie>=1.0          # cross-checks our calibration code
+pytest>=8
+
+# Optional: faster gradient-boosted trees. On macOS it needs `brew install libomp`,
+# and it must not be imported in the same process as torch.
+# lightgbm>=4.3
