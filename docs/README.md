@@ -8,7 +8,7 @@ WISER picks the cutoff with *conformal risk control*. Using held-out data, it fi
 
 We test whether this promise holds on the NDWS dataset, and how much of the map has to be flagged to keep it.
 
-**Status (2026-11-15):** planning is done and the code layout is set up, with empty modules in `wiser/`. There are no experiments yet. The next step is the week-1 data check ([plan](plan.md)).
+**Status (2026-11-15):** the data is downloaded and converted, and the week-1 data check is done ([data §6](data.md)). The calibration code is written and tested. Next come the distance buffer end to end and a U-Net test run ([plan](plan.md)).
 
 ## Files
 

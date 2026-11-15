@@ -52,7 +52,7 @@ Never cut:
 | 4 | The headline is what a calibrated next-day fire map can honestly promise, and at what flagged-area cost. Not "evacuation maps". | Labels and resolution can't support evacuation claims | Proposed |
 | 5 | NDWS only | Other datasets are too big or don't line up | Proposed |
 | 6 | Official split: validation is carved from train, calibration is the official eval split, test is the official test split | Avoids the anchor paper's leakage and data reuse | Proposed |
-| 7 | Random 32 × 32 crops | Tiles are centred on tomorrow's fire | Proposed; confirm in the data check |
+| 7 | Random 32 × 32 crops | Tiles are centred on tomorrow's fire; the data check confirmed it (85 % of tiles burn at the centre) | Proposed |
 | 8 | The crop, not the pixel, is the calibration unit | Pixels in a crop are correlated | Proposed |
 | 9 | Main rule: WISER capped, starting with `c` = 32. Standard per-crop CRC is the baseline. | Balances small and big fires, with enough data for a small margin | Proposed |
 | 10 | Population decides which misses get a stricter target. It is not added as a new input. | It is already an NDWS input, with no predictive value | Proposed |
@@ -62,6 +62,7 @@ Never cut:
 | 14 | The wording rules in [evaluation](evaluation.md) apply to the code README and the demo | Avoids overclaiming | Proposed |
 | 15 | Keep a 2 MB copy of the proposal at `docs/proposal.pdf`; the 12.9 MB original stays out of the repo | Same slides at the same resolution, a sixth of the size | Confirmed by the user (2026-11-15) |
 | 16 | Simple code layout: one `wiser/` folder with one module per job, and a `requirements.txt`. No `src/` and no `pyproject.toml`. | Keeps the code base small and easy to follow ([engineering](engineering.md)) | Confirmed by the user (2026-11-15) |
+| 17 | Leave out exact repeat tiles, keeping the first of each group | 860 tiles are exact repeats ([data §6](data.md)); keeping them would count the same fire twice | Proposed |
 
 ## Open questions
 
@@ -69,7 +70,6 @@ Never cut:
 |---|---|---|
 | For the instructor: the due date; how code and demo are submitted; the AI-tool policy; whether the change of scope from the proposal is acceptable | Plan and grading | Week 1 |
 | Who owns each area? | Accountability | Week 1 |
-| Data-check numbers: fire share (about 1 %, versus 5 % in the anchor paper), fire pixels per crop, centring, duplicates, populated fire pixels | These settle the crops, the cap `c` and the size of the exposure experiment | Week 1 |
 | Wind direction under flips and rotations: rotate (u, v) components, or skip those augmentations? | Correct augmentation | Week 1 |
 | τ and α_pop for the exposure version | They must be fixed on validation data before calibration | Week 2 |
 | Has anyone published per-crop or exposure-aware CRC for wildfire maps since November 2026? | Novelty wording | Week 2 |
@@ -79,7 +79,7 @@ Never cut:
 | Risk | Warning sign | Response |
 |---|---|---|
 | Per-crop control at α = 5 % flags almost the whole map | Flagged area above 50 % | Lead with α = 10 % and the capped rate. The cost is a finding in itself. |
-| Too few populated fire pixels | Fewer than about 200 calibration crops with populated fire | Shrink the exposure experiment and report the shortage |
+| Too few populated fire pixels | Fewer than about 200 calibration crops with populated fire (measured: 366, so this is now unlikely) | Shrink the exposure experiment and report the shortage |
 | Laptop training too slow | Runs take more than three times the estimate | Use smaller models, then free cloud notebooks |
 | Bug in the calibration code | The sanity check fails | Synthetic tests, a brute-force check, a MAPIE cross-check, peer review |
 | Overclaiming | Banned words in the README or demo | The wording table in [evaluation](evaluation.md) |

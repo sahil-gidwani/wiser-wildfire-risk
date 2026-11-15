@@ -176,7 +176,7 @@ All rules use the same U-Net scores and the same calibration crops.
 - **Compared with:**
   - the single standard cutoff, for which we measure how many populated fire pixels it misses;
   - flagging every populated pixel plus the standard cutoff elsewhere. This is the trivial way to never miss in a populated cell, and the two-cutoff version must flag less.
-- **Check first (week 1):** count how many calibration crops contain populated fire pixels. If there are fewer than about 200, the populated cutoff is weak. In that case, shrink the experiment and report the shortage as a finding.
+- **Check first (week 1):** count how many calibration crops contain populated fire pixels. If there are fewer than about 200, the populated cutoff is weak. In that case, shrink the experiment and report the shortage as a finding. The week-1 check found 366 ([data §6](data.md)), so the experiment can go ahead.
 
 **Limits.**
 - "Exposure" here means GPWv4 population density at 1 km, a static census proxy. It is not people at risk, homes or lives.

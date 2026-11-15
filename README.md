@@ -3,7 +3,7 @@ Research on uncertainty-aware wildfire spread prediction, conformal risk control
 
 ## Status
 
-Planning is done and the code layout is set up. No code has been written and no experiments have been run.
+Planning is done. The data step (`python -m wiser.data`) and the calibration code are written and tested. No experiments have been run yet.
 
 **WISER** picks the cutoff for a next-day wildfire map so that the expected share of missed fire pixels stays below a target. It holds misses in populated pixels to a stricter target. We test it on the NDWS dataset and measure how much of the map it has to flag.
 
