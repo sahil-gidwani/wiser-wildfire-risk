@@ -61,6 +61,7 @@ Never cut:
 | 13 | Write our own code; copy nothing from the anchor paper's repository | It has no licence | Proposed |
 | 14 | The wording rules in [evaluation](evaluation.md) apply to the code README and the demo | Avoids overclaiming | Proposed |
 | 15 | Keep a 2 MB copy of the proposal at `docs/proposal.pdf`; the 12.9 MB original stays out of the repo | Same slides at the same resolution, a sixth of the size | Confirmed by the user (2026-11-15) |
+| 16 | Simple code layout: one `wiser/` folder with one module per job, and a `requirements.txt`. No `src/` and no `pyproject.toml`. | Keeps the code base small and easy to follow ([engineering](engineering.md)) | Confirmed by the user (2026-11-15) |
 
 ## Open questions
 
