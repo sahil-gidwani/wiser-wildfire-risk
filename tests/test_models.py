@@ -32,3 +32,13 @@ def test_buffers_differ_when_todays_fire_is_outside_the_window():
     assert (buffer_window(today, ROWS, COLS) == -NO_FIRE_DISTANCE).all()  # the window sees nothing
     tile_scores = buffer_tile(today, ROWS, COLS)
     assert tile_scores[0, 31, 10] == -9 and tile_scores.max() == -9
+
+
+def test_tiny_unet_gives_one_score_per_pixel():
+    import torch
+
+    from wiser.models import TinyUNet
+
+    model = TinyUNet(12)
+    assert model(torch.zeros(2, 12, 32, 32)).shape == (2, 32, 32)
+    assert 450_000 < sum(p.numel() for p in model.parameters()) < 490_000  # "about 470K parameters"

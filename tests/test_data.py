@@ -29,3 +29,17 @@ def test_count_records(tmp_path):
         writer.write({"x": ([value] * 10, "float")})
     writer.close()
     assert count_records(path) == 3
+
+
+def test_scale_keeps_todays_fire_and_centres_the_mean():
+    from wiser.data import FIRE_TODAY, INPUTS, scale
+
+    stats = {name: [0.0, 100.0, 40.0, 10.0] for name in INPUTS}  # low, high, mean, spread
+    stats["PrevFireMask"] = [-1.0, 1.0, 0.0, 1.0]
+    x = np.full((1, len(INPUTS), 2, 2), 40.0, dtype=np.float32)  # every layer at its mean
+    x[0, 0, 0, 0] = 500.0  # above the high end, so it is clipped to 100 -> (100 - 40) / 10 = 6
+    x[0, FIRE_TODAY] = [[1, 0], [-1, 1]]
+    out = scale(x, stats)
+    assert out[0, 0, 0, 0] == 6
+    assert np.allclose(np.delete(out, FIRE_TODAY, axis=1).ravel()[1:], 0)
+    assert (out[0, FIRE_TODAY] == [[1, 0], [-1, 1]]).all()
