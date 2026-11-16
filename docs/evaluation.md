@@ -74,6 +74,16 @@ A teammate who didn't write the rule reviews it.
   | 10 % | flags 100 % | missed 11.1 %, flags 63 % | missed 9.3 %, flags 58 % |
 
   The U-Net flags about 5 points less land while seeing only the window. The whole-tile buffer landed above its targets on this single validation draw, and the older pixel-pooled rule overshot most (14.1 % missed against a 10 % target); experiment 2 will check averages over many draws. At the fixed cutoff 0 the U-Net flags almost nothing and misses 98 % of fire.
+- **Three U-Net seeds** (tuned settings; same calibration and validation halves):
+
+  | Seed | Validation AP | 5 %: missed / flagged | 10 %: missed / flagged |
+  |---|---|---|---|
+  | 0 | 0.250 | 4.7 % / 70.8 % | 9.3 % / 58.0 % |
+  | 1 | 0.242 | 5.5 % / 72.5 % | 9.9 % / 58.6 % |
+  | 2 | 0.237 | 4.5 % / 73.0 % | 8.8 % / 60.7 % |
+  | Mean ± spread | 0.243 ± 0.007 | 4.9 % / 72.1 % ± 1.2 | 9.3 % / 59.1 % ± 1.5 |
+
+  The U-Net flags about 4 points less land than the whole-tile buffer at 5 % (72 % vs 76 %) and about 3.5 points less at 10 % (59 % vs 63 %): roughly three times the seed-to-seed spread, so the gap looks real but modest. Seed 0 won the tuning, so its numbers are slightly flattering; seeds 1 and 2 are fresh.
 
 ### 2 · Does it hold? (RQ1)
 
