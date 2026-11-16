@@ -2,7 +2,7 @@
 
 The code is meant to stay small: one folder, one module per job, four commands.
 
-`data.py`, `calibrate.py` and `metrics.py` are written and tested. `models.py` and `train.py` have the three baselines (persistence and the two distance buffers) and the Tiny U-Net with its training loop; `evaluate.py` has a first version that measures on validation crops. The trees and `demo.py` are still to come. A U-Net epoch takes 11–22 s on an M4 laptop's GPU.
+`data.py`, `calibrate.py` and `metrics.py` are written and tested. `models.py` and `train.py` have the three baselines (persistence and the two distance buffers) and the Tiny U-Net with its training loop; `evaluate.py` has a first version that measures on validation crops. `train.py` also trains the tree model (`--model trees`, about 13 s). `demo.py` is still to come. A U-Net epoch takes 11–22 s on an M4 laptop's GPU.
 
 ## Layout
 

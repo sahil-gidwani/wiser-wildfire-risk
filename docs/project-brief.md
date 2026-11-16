@@ -47,7 +47,7 @@ Details are in [method](method.md).
 ## What success looks like
 
 - **Valid.** Averaged over repeated re-splits, the realised miss rate is at or below α, within simulation error. On the official test split it lands near α; a single draw can sit slightly above by chance.
-- **Useful.** The flagged area is well below 100 %, and the U-Net flags less than the distance buffer at the same α.
+- **Useful.** The flagged area is well below 100 %, and the learned models (trees, U-Net) flag less than the distance buffer at the same α.
 - **Exposure-aware.** The stricter cutoff for populated pixels meets its target while flagging less than "flag every populated pixel".
 
 If one of these fails, that is still a result: we report it and explain why.

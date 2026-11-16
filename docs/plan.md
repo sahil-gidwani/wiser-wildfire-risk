@@ -57,7 +57,7 @@ Never cut:
 | 9 | Main rule: WISER capped, starting with `c` = 32. Standard per-crop CRC is the baseline. | Balances small and big fires, with enough data for a small margin | Proposed |
 | 10 | Population decides which misses get a stricter target. It is not added as a new input. | It is already an NDWS input, with no predictive value | Proposed |
 | 11 | Persistence and the distance buffer appear in every comparison | Today's fire carries most of the signal | Proposed |
-| 12 | Models: trees, Tiny U-Net (main), fire-only U-Net. No Swin unless the instructor asks; no ResGNN. | Swin evidence; ResGNN added nothing | Proposed |
+| 12 | Models: trees, Tiny U-Net, fire-only U-Net (main models: decision 25). No Swin unless the instructor asks; no ResGNN. | Swin evidence; ResGNN added nothing | Proposed |
 | 13 | Write our own code; copy nothing from the anchor paper's repository | It has no licence | Proposed |
 | 14 | The wording rules in [evaluation](evaluation.md) apply to the code README and the demo | Avoids overclaiming | Proposed |
 | 15 | Keep a 2 MB copy of the proposal at `docs/proposal.pdf`; the 12.9 MB original stays out of the repo | Same slides at the same resolution, a sixth of the size | Confirmed by the user (2026-11-15) |
@@ -69,6 +69,8 @@ Never cut:
 | 21 | Work out the input scaling from our training tiles, instead of copying the NDWS authors' numbers | No numbers of unknown origin in the code, and nothing taken from calibration or test data | Confirmed by the user (2026-11-15) |
 | 22 | Validation is half of the official eval split (chunks of 50 records); calibration is the other half; train is all of the official train split. Replaces the validation part of decision 6. | Validation carved from the train split shares weeks, fires and places with the training tiles and flattered the U-Net (AP 0.38 there against 0.22 on new weeks) | Confirmed by the user (2026-11-15) |
 | 23 | U-Net training: 15 epochs, learning rate 1e-3, weight decay 0.01, no flips | Best and steadiest validation AP of five settings tried (see [evaluation](evaluation.md), experiment 1) | Chosen on validation (2026-11-15) |
+| 24 | Choose and early-stop models by the land WISER needs to keep the 10 % promise (capped) on the validation crops, not by validation AP | That is what the project cares about; the trees have lower AP but need about 10 points less land than the U-Net | Confirmed by the user (2026-11-15) |
+| 25 | Two main models in experiments 2-4: the gradient-boosted trees and the Tiny U-Net | They win on different things (trees: least land; U-Net: best ranking), and the contrast is a finding | Confirmed by the user (2026-11-15) |
 
 ## Open questions
 
