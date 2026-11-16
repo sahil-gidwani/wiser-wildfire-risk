@@ -2,7 +2,7 @@
 
 The code is meant to stay small: one folder, one module per job, four commands.
 
-`data.py`, `calibrate.py` and `metrics.py` are written and tested. `models.py` and `train.py` have the three baselines (persistence and the two distance buffers), and `evaluate.py` has a first version that measures on validation crops. The U-Net, the trees and `demo.py` are still to come.
+`data.py`, `calibrate.py` and `metrics.py` are written and tested. `models.py` and `train.py` have the three baselines (persistence and the two distance buffers) and the Tiny U-Net with its training loop; `evaluate.py` has a first version that measures on validation crops. The trees and `demo.py` are still to come. A U-Net epoch takes 11–22 s on an M4 laptop's GPU.
 
 ## Layout
 
@@ -50,7 +50,7 @@ Run these from the repository root, in order:
 
 | File | Written by | Contents |
 |---|---|---|
-| `outputs/data/` | `wiser.data` | `inputs.npy`: float32 `[N, 12, 64, 64]`<br>`labels.npy`: int8 `[N, 64, 64]`<br>`tiles.csv`: one row per tile, with split, role, crop offset, counts and an `is_copy` flag for exact repeats |
+| `outputs/data/` | `wiser.data` | `inputs.npy`: float32 `[N, 12, 64, 64]`<br>`labels.npy`: int8 `[N, 64, 64]`<br>`tiles.csv`: one row per tile, with split, role, crop offset, counts and an `is_copy` flag for exact repeats<br>`stats.json`: the input scaling, worked out from the training tiles |
 | `outputs/scores/<model>_seed<k>/` | `wiser.train` | `scores.npy`: float32 logits for every validation, calibration and test crop<br>`tile_ids.npy`<br>`meta.json`: model, seed, git commit, training time |
 | `outputs/results.csv` | `wiser.evaluate` | One row per (model, rule, α, check, metric), with the value and its interval |
 

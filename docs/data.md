@@ -29,7 +29,7 @@ We use one dataset: **Next Day Wildfire Spread (NDWS)** (Huot et al., IEEE TGRS 
 | `population` | Population density (people/km²) | GPWv4.11, about 1 km |
 | `PrevFireMask` | Today's fire mask, values {−1, 0, 1} | MODIS MOD14A1 |
 
-The target `FireMask` is tomorrow's MODIS mask. The NDWS code clips each input to fixed bounds and standardises it with fixed means and standard deviations (`DATA_STATS`). We use the same values.
+The target `FireMask` is tomorrow's MODIS mask. Before training, each input is clipped to a range and standardised (minus its mean, divided by its spread). We work these numbers out ourselves from the **training tiles only**: the range is each layer's 0.1 to 99.9 percentile. `python -m wiser.data` saves them to `outputs/data/stats.json` (decision 21).
 
 **Population** is heavily skewed (mean 26, 99.9th percentile 2,534 people/km²). It is also static: a place has the same value in every year.
 
@@ -78,7 +78,7 @@ Never use calibration or test data to make a choice. Anything decided after look
    - Read the TFRecords with the `tfrecord` package, which works without TensorFlow. The files are not compressed.
    - Write NumPy arrays: inputs `[N, 12, 64, 64]` float32 (about 3.7 GB) and labels `[N, 64, 64]` int8.
    - Write a table with one row per tile: source file, record index, split, data role, crop offset, simple counts, and an `is_copy` flag for exact repeats.
-2. **Normalise** the inputs with the official statistics, in the loader.
+2. **Scale** the inputs in the loader, with the numbers in `stats.json`. Pixels without weather data are left out when working those numbers out, and are clipped to the low end of each range when scaling.
 3. **Crop.**
    - Training: a fresh random 32 × 32 crop each time a tile is drawn.
    - Validation, calibration and test: one random crop per tile, drawn once with a fixed seed and saved.
@@ -105,6 +105,7 @@ Never use calibration or test data to make a choice. Anything decided after look
 | Exact duplicate tiles | Unknown | 860 tiles in 396 groups, each group within one split. The 464 repeats after the first are left out. |
 | Fire pixels with population > 0 / > 10 / > 100 per km² | Unknown | 50.6 % / 3.8 % / 0.6 % |
 | Calibration crops with fire in populated cells (≥ 10 per km²) | At least about 200 needed | 366 of 1,877, so the exposure experiment can go ahead |
+| Pixels without weather data | Not checked | 0.36 % of training pixels, in 3.5 % of tiles: temperature, fuel dryness and humidity are all stored as 0 (0 kelvin is impossible), probably where the weather data has no coverage. About 10 % of pixels also have slightly negative rain, a harmless rounding artefact. |
 | Persistence precision / recall | 35.7 % / 27.3 % | 35.7 % / 27.3 % on full test tiles, so our metric code matches the paper. On our test crops: 37.9 % / 24.7 %. |
 
 ## 7. Other datasets (not used)

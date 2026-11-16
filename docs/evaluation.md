@@ -53,6 +53,10 @@ A teammate who didn't write the rule reviews it.
   - Measuring distance on the whole tile instead, WISER picks a radius of 21–31 km and flags 62–83 % of the land.
   - Persistence also has to flag everything. At the fixed cutoff 0 (today's fire only) it flags 1.5 % of the land and misses 74–78 % of tomorrow's fire, including all new fire.
   - AP on validation crops: buffer 0.218, persistence 0.108.
+- **U-Net smoke run** (3 epochs, seed 0, Mac GPU, 10–22 s per epoch, 470,401 parameters):
+  - With our own input scaling: validation AP 0.188 → 0.226 → 0.233, already above both buffers (0.22). With WISER capped it flags 84 % of the land at 5 % and 74 % at 10 %.
+  - An earlier 3-epoch run with the NDWS authors' scaling reached the same AP (0.235) but flagged 76 % and 64 %. Flagged area after 3 epochs is noisy; only full training with several seeds can compare settings.
+  - At the fixed cutoff 0 (probability 0.5) it flags nothing and misses all fire: with fire at about 3 % of pixels, no pixel reaches 50 %.
 
 ### 2 · Does it hold? (RQ1)
 

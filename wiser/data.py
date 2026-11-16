@@ -7,11 +7,14 @@
    - labels.npy: int8 [N, 64, 64], tomorrow's fire: 1 fire, 0 no fire, -1 unknown;
    - tiles.csv: one row per tile with its file, split, data role, crop offset and counts.
      Tiles that exactly repeat an earlier tile are marked is_copy and left out by load().
-3. Run the week-1 data checks, print them and save them to outputs/data/checks.txt.
+3. Work out the input scaling from the training tiles only and save it to outputs/data/stats.json.
+4. Run the week-1 data checks, print them and save them to outputs/data/checks.txt.
 
 Run: python -m wiser.data
 """
+import functools
 import hashlib
+import json
 import os
 from pathlib import Path
 
@@ -43,6 +46,11 @@ def main():
         print(f"{OUT_DIR}/ already exists, so the conversion is skipped (delete it to redo).")
     else:
         convert(files)
+    stats_file = OUT_DIR / "stats.json"
+    if not stats_file.exists():
+        inputs, _, tiles = load(keep_copies=True)
+        stats_file.write_text(json.dumps(compute_stats(inputs, tiles), indent=2) + "\n")
+        print(f"saved the input scaling (from the training tiles) to {stats_file}")
     report = data_checks()
     print(report)
     (OUT_DIR / "checks.txt").write_text(report + "\n")
@@ -72,6 +80,54 @@ def crop(a, row, col, size=CROP):
 def stored_crops(a, tiles):
     """The stored crop of each tile in `tiles`, taken from an array indexed by tile_id."""
     return np.stack([crop(a[t.tile_id], t.crop_row, t.crop_col) for t in tiles.itertuples()])
+
+
+def compute_stats(inputs, tiles):
+    """Scaling numbers for each input layer, worked out on the training tiles only (repeats left out).
+
+    For each layer: low and high are its 0.1 and 99.9 percentiles, and mean and spread are taken
+    after clipping to them. Today's fire is left as it is: -1, 0 or 1.
+
+    About 0.4 % of pixels have no weather data: temperature, fuel dryness and humidity are all
+    stored as 0 there (0 kelvin is impossible). The numbers are worked out without those pixels,
+    so at scaling time they are simply clipped to the low end of each range.
+    """
+    ids = tiles[(tiles.role == "train") & ~tiles.is_copy].tile_id.to_numpy()
+    has_weather = np.asarray(inputs[ids, INPUTS.index("tmmx")]).ravel() > 0
+    stats = {}
+    for k, name in enumerate(INPUTS):
+        if k == FIRE_TODAY:
+            stats[name] = [-1.0, 1.0, 0.0, 1.0]
+            continue
+        values = np.asarray(inputs[ids, k], dtype=np.float32).ravel()[has_weather]
+        low, high = np.percentile(values, [0.1, 99.9])
+        clipped = np.clip(values, low, high)
+        stats[name] = [float(low), float(high), float(clipped.mean()), float(clipped.std())]
+    return stats
+
+
+@functools.lru_cache(maxsize=1)
+def saved_stats():
+    """The scaling numbers saved by `python -m wiser.data` in outputs/data/stats.json."""
+    return json.loads((OUT_DIR / "stats.json").read_text())
+
+
+def scale(x, stats=None):
+    """Clip and standardise input layers [n, 12, h, w], so every layer has a similar range.
+
+    Each layer is clipped to (low, high), then the mean is subtracted and the result divided by
+    the spread. `stats` maps layer name -> [low, high, mean, spread]; by default the saved ones.
+    """
+    stats = stats or saved_stats()
+    low, high, mean, std = (np.array([stats[k][j] for k in INPUTS], np.float32)[:, None, None] for j in range(4))
+    return (np.clip(x, low, high) - mean) / std
+
+
+def windows_of(inputs, labels, tile_ids, rows, cols):
+    """Scaled inputs [n, 12, 32, 32] and labels [n, 32, 32] for the given tiles and window corners."""
+    x = np.stack([inputs[t, :, r:r + CROP, c:c + CROP] for t, r, c in zip(tile_ids, rows, cols)])
+    y = np.stack([labels[t, r:r + CROP, c:c + CROP] for t, r, c in zip(tile_ids, rows, cols)])
+    return scale(x), y
 
 
 def new_fire(labels, fire_today):
