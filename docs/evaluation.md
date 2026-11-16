@@ -84,6 +84,11 @@ A teammate who didn't write the rule reviews it.
   | Mean ± spread | 0.243 ± 0.007 | 4.9 % / 72.1 % ± 1.2 | 9.3 % / 59.1 % ± 1.5 |
 
   The U-Net flags about 4 points less land than the whole-tile buffer at 5 % (72 % vs 76 %) and about 3.5 points less at 10 % (59 % vs 63 %): roughly three times the seed-to-seed spread, so the gap looks real but modest. Seed 0 won the tuning, so its numbers are slightly flattering; seeds 1 and 2 are fresh.
+- **Fire-only U-Net** (same network and settings, today's fire as its only input; seeds 0-2):
+  - Validation AP 0.203 ± 0.001, against 0.243 ± 0.007 for the full U-Net.
+  - With WISER capped it flags 84 % ± 3 of the land at 5 % and 69 % ± 4 at 10 % (missed 4.4 % and 9.2 %), against 72 % and 59 % for the full U-Net.
+  - So the other 11 layers (weather, fuel dryness, vegetation, terrain, population) do help: about 10-12 points less land at the same promise, several times the seed spread. This differs from reports that a fire-only model matches the full one (Fitzgerald 2023, *reported*).
+  - With the same information, the fire-only U-Net beats the window-only buffer by far (84 % vs 100 % at 5 %), but it flags more than the whole-tile buffer (76 %), which also sees today's fire outside the window.
 
 ### 2 · Does it hold? (RQ1)
 
