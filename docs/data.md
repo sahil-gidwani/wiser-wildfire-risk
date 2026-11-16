@@ -38,7 +38,7 @@ The target `FireMask` is tomorrow's MODIS mask. Before training, each input is c
 - **Fire** means a MODIS Terra active-fire detection at 1 km, at low, nominal or high confidence.
 - **What MODIS misses.** Terra passes over at about 10:30 and 22:30, so it misses the afternoon peak, fire under cloud, and short fires.
 - **Unknown pixels (−1)** are left out of every loss, metric and area count.
-- **Most next-day fire is new.** Persistence (tomorrow = today) has precision 35.7 % and recall 27.3 % on full test tiles (Huot 2022; our code gives the same numbers). On our crops, 77 % of tomorrow's fire pixels were not burning today.
+- **Most next-day fire is new.** Persistence (tomorrow = today) has precision 35.7 % and recall 27.3 % on full test tiles (Huot 2022; our code gives the same numbers). On our crops, 78 % of tomorrow's fire pixels were not burning today.
 - **What the label is not.** It is not a perimeter, a burned area or a "fire front". Every miss we count is a miss of a satellite detection.
 
 ## 3. Three quirks that shape the design
@@ -63,9 +63,9 @@ Several overlapping tiles are also often cut from the same fire on the same day,
 
 | Role | Data | Used for |
 |---|---|---|
-| Train | Official train minus validation | Fitting models |
-| Validation | About 10 % of official train (1,498 tiles), taken in chunks of 50 consecutive records so that same-fire tiles mostly stay together | Every choice: early stopping, model choice, settings, the exposure settings |
-| Calibration | Official eval | Choosing the cutoff, and nothing else |
+| Train | All of the official train split (14,555 tiles after leaving out repeats) | Fitting models |
+| Validation | Half of the official eval split (940 tiles), taken in chunks of 50 consecutive records so that same-fire tiles mostly stay together | Every choice: early stopping, model choice, settings, the exposure settings |
+| Calibration | The other half of the official eval split (937 tiles) | Choosing the cutoff, and nothing else |
 | Test | Official test | Reporting, and nothing else |
 
 Never use calibration or test data to make a choice. Anything decided after looking at test numbers is labelled *exploratory*.
@@ -95,16 +95,16 @@ Never use calibration or test data to make a choice. Anything decided after look
 | Check | Expected | Measured |
 |---|---|---|
 | Tiles per split | 14,979 / 1,877 / 1,689 | The same |
-| Fire share of valid pixels | About 1 %; the anchor paper says about 5 % | 1.14 % on full tiles and 2.69 % on crops. The anchor paper's 5 % is wrong. |
+| Fire share of valid pixels | About 1 %; the anchor paper says about 5 % | 1.14 % on full tiles and 2.93 % on crops. The anchor paper's 5 % is wrong. |
 | Unknown-pixel share | About 1.8 % | 2.39 % |
-| Fire pixels per crop | Mean about 30 (*estimate*) | Mean 26.9, median 11; a quarter of crops have 32 or more. The cap `c` = 32 stays. |
+| Fire pixels per crop | Mean about 30 (*estimate*) | Mean 29.3, median 12; a quarter of crops have 32 or more. The cap `c` = 32 stays. |
 | Fire at the tile centre | About 100 % if tiles are centred | 85 % of tiles burn tomorrow in the central 2 × 2 pixels, where the fire rate is 54 % against 1.1 % over the whole tile. Tiles are centred, so the crops stay. |
 | Tiles with fire on both days | All | Fire today: 100 %. Fire tomorrow: 89 %. The 11 % without are much cloudier. |
-| Crops with no fire tomorrow | At most about 6 % | 15.8 %, mostly from the tiles with no fire tomorrow. Such crops carry no weight in the WISER rule; they only add flagged area. |
-| New fire as a share of tomorrow's fire | About 73 % | 77 % |
+| Crops with no fire tomorrow | At most about 6 % | 15.0 %, mostly from the tiles with no fire tomorrow. Such crops carry no weight in the WISER rule; they only add flagged area. |
+| New fire as a share of tomorrow's fire | About 73 % | 78 % |
 | Exact duplicate tiles | Unknown | 860 tiles in 396 groups, each group within one split. The 464 repeats after the first are left out. |
 | Fire pixels with population > 0 / > 10 / > 100 per km² | Unknown | 50.6 % / 3.8 % / 0.6 % |
-| Calibration crops with fire in populated cells (≥ 10 per km²) | At least about 200 needed | 366 of 1,877, so the exposure experiment can go ahead |
+| Calibration crops with fire in populated cells (≥ 10 per km²) | At least about 200 needed | 209 of 937 (366 of 1,877 before the eval split was halved), just enough for the exposure experiment |
 | Pixels without weather data | Not checked | 0.36 % of training pixels, in 3.5 % of tiles: temperature, fuel dryness and humidity are all stored as 0 (0 kelvin is impossible), probably where the weather data has no coverage. About 10 % of pixels also have slightly negative rain, a harmless rounding artefact. |
 | Persistence precision / recall | 35.7 % / 27.3 % | 35.7 % / 27.3 % on full test tiles, so our metric code matches the paper. On our test crops: 37.9 % / 24.7 %. |
 

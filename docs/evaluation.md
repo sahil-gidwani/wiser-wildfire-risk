@@ -25,7 +25,7 @@ Not used:
    - For every CRC-based rule, the **average** realised miss rate must be at most α, within simulation error. If it isn't, the code has a bug.
    - This check says nothing about new fires, because one fire can sit on both sides.
 2. **Official split (realistic check).**
-   - Calibrate on the official eval split and report on the official test split, which covers different time windows.
+   - Calibrate on the calibration half of the official eval split and report on the official test split, which covers different time windows.
    - Then swap the two.
    - Each is a single draw, so a small excess over α can be chance.
 3. ***If time:* block re-splits.** Like check 1, but move whole chunks of consecutive records together, so that crops of the same fire stay on one side.
@@ -57,6 +57,23 @@ A teammate who didn't write the rule reviews it.
   - With our own input scaling: validation AP 0.188 → 0.226 → 0.233, already above both buffers (0.22). With WISER capped it flags 84 % of the land at 5 % and 74 % at 10 %.
   - An earlier 3-epoch run with the NDWS authors' scaling reached the same AP (0.235) but flagged 76 % and 64 %. Flagged area after 3 epochs is noisy; only full training with several seeds can compare settings.
   - At the fixed cutoff 0 (probability 0.5) it flags nothing and misses all fire: with fire at about 3 % of pixels, no pixel reaches 50 %.
+- **First full U-Net run, and a leak in our validation set** (50 epochs, 11 min, validation then carved from the train split):
+  - Validation AP rose from 0.19 to 0.385 and was still creeping up at epoch 50, so early stopping never triggered.
+  - On the calibration crops, from weeks the model never trained on, its AP was only 0.219 (whole-tile buffer: 0.222 on validation, 0.183 on calibration).
+  - Validation tiles came from the same weeks as the training tiles, so they shared fires and places with them, and the model was partly memorising those. Validation over-rated it, early stopping had a misleading yardstick, and WISER's cutoff (picked on the harder calibration crops) missed only 2.4 % on validation against a 5 % target.
+  - Fix (decision 22): validation is now half of the official eval split, so validation, calibration and test all come from weeks the model never trains on. The earlier validation numbers are kept here only as the record of this finding.
+- **Retraining and tuning with the new validation half** (seed 0):
+  - The original settings now stop early: best validation AP 0.245 at epoch 11, stopped at 18. On weeks it never saw, the model learns its useful patterns in about 10 epochs.
+  - Five settings compared on validation AP: 50 planned epochs 0.245; 15 epochs 0.242; 15 epochs with learning rate 3e-4 0.229; **15 epochs with weight decay 0.01: 0.250** (steady after its peak, 3 minutes); 30 epochs with learning rate 3e-4 and weight decay 0.01: 0.236. Differences under about 0.01 are within noise; the smaller learning rate clearly hurts.
+  - Chosen (decision 23): 15 epochs, learning rate 1e-3, weight decay 0.01.
+- **U-Net against the buffers** (cutoff picked on the calibration half, measured on the validation half; AP 0.250 vs 0.180 for the whole-tile buffer):
+
+  | Target, capped | buffer_window | buffer_tile | U-Net |
+  |---|---|---|---|
+  | 5 % | flags 100 % | missed 6.4 %, flags 76 % | missed 4.7 %, flags 71 % |
+  | 10 % | flags 100 % | missed 11.1 %, flags 63 % | missed 9.3 %, flags 58 % |
+
+  The U-Net flags about 5 points less land while seeing only the window. The whole-tile buffer landed above its targets on this single validation draw, and the older pixel-pooled rule overshot most (14.1 % missed against a 10 % target); experiment 2 will check averages over many draws. At the fixed cutoff 0 the U-Net flags almost nothing and misses 98 % of fire.
 
 ### 2 · Does it hold? (RQ1)
 

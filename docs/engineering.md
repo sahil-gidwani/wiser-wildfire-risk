@@ -51,7 +51,7 @@ Run these from the repository root, in order:
 | File | Written by | Contents |
 |---|---|---|
 | `outputs/data/` | `wiser.data` | `inputs.npy`: float32 `[N, 12, 64, 64]`<br>`labels.npy`: int8 `[N, 64, 64]`<br>`tiles.csv`: one row per tile, with split, role, crop offset, counts and an `is_copy` flag for exact repeats<br>`stats.json`: the input scaling, worked out from the training tiles |
-| `outputs/scores/<model>_seed<k>/` | `wiser.train` | `scores.npy`: float32 logits for every validation, calibration and test crop<br>`tile_ids.npy`<br>`meta.json`: model, seed, git commit, training time |
+| `outputs/scores/<model>_seed<k>/` | `wiser.train` | `scores.npy`: float32 logits for every validation, calibration and test crop<br>`tile_ids.npy`<br>`meta.json`: model, seed, training time, settings and per-epoch history<br>`model.pt`: the trained weights (learned models only) |
 | `outputs/results.csv` | `wiser.evaluate` | One row per (model, rule, α, check, metric), with the value and its interval |
 
 Rules for these files:
