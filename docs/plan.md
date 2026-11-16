@@ -66,6 +66,7 @@ Never cut:
 | 18 | No flips or rotations when training | Flipping an image changes the wind direction; skipping them keeps things simple | Confirmed by the user (2026-11-15) |
 | 19 | Report two distance buffers: `buffer_window` (distance inside the window, the same view the models get) and `buffer_tile` (distance on the whole tile) | The window-only buffer flags everything at 5 % and 10 %; the whole-tile one is the tougher, more realistic rule | Confirmed by the user (2026-11-15) |
 | 20 | Keep the targets at α = 5 % and 10 %; no easier 20 % target for now | Keep the comparison simple | Confirmed by the user (2026-11-15) |
+| 21 | Work out the input scaling from our training tiles, instead of copying the NDWS authors' numbers | No numbers of unknown origin in the code, and nothing taken from calibration or test data | Confirmed by the user (2026-11-15) |
 
 ## Open questions
 
