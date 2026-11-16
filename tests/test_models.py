@@ -42,3 +42,17 @@ def test_tiny_unet_gives_one_score_per_pixel():
     model = TinyUNet(12)
     assert model(torch.zeros(2, 12, 32, 32)).shape == (2, 32, 32)
     assert 450_000 < sum(p.numel() for p in model.parameters()) < 490_000  # "about 470K parameters"
+
+
+def test_pixel_features_describe_todays_fire_nearby():
+    from wiser.data import FIRE_TODAY, INPUTS
+    from wiser.models import TREE_FEATURES, pixel_features
+
+    x = np.zeros((1, len(INPUTS), 32, 32), dtype=np.float32)
+    x[0, FIRE_TODAY, 10, 10] = 1  # one pixel burning today
+    x[0, 0] = 500.0  # elevation everywhere
+    f = pixel_features(x).reshape(32, 32, len(TREE_FEATURES))
+    assert f.shape[-1] == 15 and (f[..., 0] == 500).all()
+    assert f[10, 12, 12] == 2  # distance to fire
+    assert f[10, 11, 13] == 1 and f[10, 12, 13] == 0  # burning within 3 x 3
+    assert f[10, 13, 14] == 1 and f[10, 14, 14] == 0  # burning within 7 x 7
