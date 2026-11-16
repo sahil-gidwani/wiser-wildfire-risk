@@ -33,8 +33,8 @@ FIRE_TODAY = INPUTS.index("PrevFireMask")
 
 TILE = 64  # tile side in pixels; 1 pixel = 1 km
 CROP = 32  # crop side in pixels
-VALIDATION_SHARE = 0.10  # share of the official train split held out for making choices
-CHUNK = 50  # validation is carved out in chunks of this many consecutive records
+VALIDATION_SHARE = 0.5  # share of the official eval split used for validation; the rest calibrates
+CHUNK = 50  # the eval split is divided in chunks of this many consecutive records
 SEED = 0  # for the crop offsets and the validation carve-out
 POPULATED = 10.0  # people per km² at which a pixel counts as populated (tau)
 ROLES = {"train": "train", "eval": "calibration", "test": "test"}
@@ -231,14 +231,17 @@ def convert(files):
 
 
 def data_roles(tiles, rng):
-    """Train, validation, calibration (official eval) and test (official test).
+    """Train (official train), validation and calibration (official eval, split), test (official test).
 
-    Validation is about 10 % of the official train split, taken in chunks of consecutive
-    records so that tiles of the same fire mostly stay on one side.
+    Validation must come from weeks the model never trains on, so it is carved out of the official
+    eval split rather than the train split: tiles from the same weeks as the training tiles share
+    fires and places with them and flatter the model. The eval split is cut into chunks of CHUNK
+    consecutive records, so tiles of the same fire mostly stay on one side, and half of the chunks
+    become validation; the other half stays calibration.
     """
     roles = tiles["split"].map(ROLES).to_numpy(dtype=object)
-    train = np.flatnonzero(tiles["split"].to_numpy() == "train")
-    chunks = np.array_split(train, int(np.ceil(len(train) / CHUNK)))
+    held = np.flatnonzero(tiles["split"].to_numpy() == "eval")
+    chunks = np.array_split(held, int(np.ceil(len(held) / CHUNK)))
     for c in rng.choice(len(chunks), round(VALIDATION_SHARE * len(chunks)), replace=False):
         roles[chunks[c]] = "validation"
     return roles

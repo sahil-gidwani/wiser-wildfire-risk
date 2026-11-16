@@ -51,7 +51,7 @@ Never cut:
 | 3 | Deliverables: code, demo, final report | Course requirements | Confirmed by the user (2026-11-15); report format planned later |
 | 4 | The headline is what a calibrated next-day fire map can honestly promise, and at what flagged-area cost. Not "evacuation maps". | Labels and resolution can't support evacuation claims | Proposed |
 | 5 | NDWS only | Other datasets are too big or don't line up | Proposed |
-| 6 | Official split: validation is carved from train, calibration is the official eval split, test is the official test split | Avoids the anchor paper's leakage and data reuse | Proposed |
+| 6 | Official split: validation is carved from train, calibration is the official eval split, test is the official test split | Avoids the anchor paper's leakage and data reuse | Changed by decision 22 |
 | 7 | Random 32 × 32 crops | Tiles are centred on tomorrow's fire; the data check confirmed it (85 % of tiles burn at the centre) | Proposed |
 | 8 | The crop, not the pixel, is the calibration unit | Pixels in a crop are correlated | Proposed |
 | 9 | Main rule: WISER capped, starting with `c` = 32. Standard per-crop CRC is the baseline. | Balances small and big fires, with enough data for a small margin | Proposed |
@@ -67,6 +67,8 @@ Never cut:
 | 19 | Report two distance buffers: `buffer_window` (distance inside the window, the same view the models get) and `buffer_tile` (distance on the whole tile) | The window-only buffer flags everything at 5 % and 10 %; the whole-tile one is the tougher, more realistic rule | Confirmed by the user (2026-11-15) |
 | 20 | Keep the targets at α = 5 % and 10 %; no easier 20 % target for now | Keep the comparison simple | Confirmed by the user (2026-11-15) |
 | 21 | Work out the input scaling from our training tiles, instead of copying the NDWS authors' numbers | No numbers of unknown origin in the code, and nothing taken from calibration or test data | Confirmed by the user (2026-11-15) |
+| 22 | Validation is half of the official eval split (chunks of 50 records); calibration is the other half; train is all of the official train split. Replaces the validation part of decision 6. | Validation carved from the train split shares weeks, fires and places with the training tiles and flattered the U-Net (AP 0.38 there against 0.22 on new weeks) | Confirmed by the user (2026-11-15) |
+| 23 | U-Net training: 15 epochs, learning rate 1e-3, weight decay 0.01, no flips | Best and steadiest validation AP of five settings tried (see [evaluation](evaluation.md), experiment 1) | Chosen on validation (2026-11-15) |
 
 ## Open questions
 
@@ -82,7 +84,7 @@ Never cut:
 | Risk | Warning sign | Response |
 |---|---|---|
 | Per-crop control at α = 5 % flags almost the whole map | Flagged area above 50 % | Lead with α = 10 % and the capped rate. The cost is a finding in itself. |
-| Too few populated fire pixels | Fewer than about 200 calibration crops with populated fire (measured: 366, so this is now unlikely) | Shrink the exposure experiment and report the shortage |
+| Too few populated fire pixels | Fewer than about 200 calibration crops with populated fire (measured: 209 of 937, just enough) | Shrink the exposure experiment and report the shortage |
 | Laptop training too slow | Runs take more than three times the estimate | Use smaller models, then free cloud notebooks |
 | Bug in the calibration code | The sanity check fails | Synthetic tests, a brute-force check, a MAPIE cross-check, peer review |
 | Overclaiming | Banned words in the README or demo | The wording table in [evaluation](evaluation.md) |

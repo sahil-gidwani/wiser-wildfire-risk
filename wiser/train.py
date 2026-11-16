@@ -15,7 +15,6 @@ Run: python -m wiser.train --model buffer_tile
 """
 import argparse
 import json
-import subprocess
 import time
 from pathlib import Path
 
@@ -27,11 +26,13 @@ from wiser.models import BASELINES, NETWORKS
 
 SCORES_DIR = Path("outputs") / "scores"
 SCORED_ROLES = ("validation", "calibration", "test")
-EPOCHS = 50
+EPOCHS = 15  # the learning rate shrinks to zero over this many epochs
 PATIENCE = 7  # stop after this many epochs without a better validation AP
 BATCH = 128
 LEARNING_RATE = 1e-3
-WEIGHT_DECAY = 1e-4
+WEIGHT_DECAY = 1e-2
+# EPOCHS, LEARNING_RATE and WEIGHT_DECAY were picked by comparing the best validation AP of five
+# settings (50 or 15 or 30 epochs; learning rate 1e-3 or 3e-4; weight decay 1e-4 or 1e-2).
 
 
 def main():
@@ -39,6 +40,9 @@ def main():
     parser.add_argument("--model", required=True, choices=sorted(BASELINES) + sorted(NETWORKS))
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--epochs", type=int, default=EPOCHS)
+    parser.add_argument("--lr", type=float, default=LEARNING_RATE, help="starting learning rate")
+    parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY)
+    parser.add_argument("--tag", default="", help="added to the output folder name, to keep tuning runs apart")
     args = parser.parse_args()
 
     start = time.time()
@@ -49,11 +53,13 @@ def main():
         scores = BASELINES[args.model](fire_today, scored.crop_row.to_numpy(), scored.crop_col.to_numpy())
         extra, state = {}, None
     else:
-        scores, extra, state = train_network(args.model, args.seed, args.epochs, inputs, labels, tiles, scored)
-    save(args.model, args.seed, scores, scored.tile_id.to_numpy(), time.time() - start, extra, state)
+        scores, extra, state = train_network(args.model, args.seed, args.epochs, args.lr, args.weight_decay,
+                                             inputs, labels, tiles, scored)
+    name = f"{args.model}_seed{args.seed}" + (f"_{args.tag}" if args.tag else "")
+    save(name, args.model, args.seed, scores, scored.tile_id.to_numpy(), time.time() - start, extra, state)
 
 
-def train_network(name, seed, epochs, inputs, labels, tiles, scored):
+def train_network(name, seed, epochs, lr, weight_decay, inputs, labels, tiles, scored):
     """Train a TinyUNet; return its scores on the scored crops, a training record, and its weights."""
     import torch
     import torch.nn.functional as F
@@ -65,7 +71,7 @@ def train_network(name, seed, epochs, inputs, labels, tiles, scored):
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     channels = [INPUTS.index(k) for k in NETWORKS[name]]
     model = TinyUNet(len(channels)).to(device)
-    optimiser = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
+    optimiser = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimiser, T_max=epochs)
 
     train_ids = tiles[tiles.role == "train"].tile_id.to_numpy().copy()  # a copy we can shuffle
@@ -103,7 +109,7 @@ def train_network(name, seed, epochs, inputs, labels, tiles, scored):
         schedule.step()
         ap = average_precision(predict(x_val), y_val)
         history.append({"epoch": epoch, "loss": round(total / count, 5), "validation_ap": round(ap, 4), "seconds": round(time.time() - tic, 1)})
-        print(f"epoch {epoch:2d}: training loss {total / count:.4f}, validation AP {ap:.4f}, {time.time() - tic:.0f} s")
+        print(f"epoch {epoch:2d}: training loss {total / count:.4f}, validation AP {ap:.4f}, {time.time() - tic:.0f} s", flush=True)
         if ap > best_ap:
             best_ap, best_epoch, waited = ap, epoch, 0
             best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
@@ -116,31 +122,24 @@ def train_network(name, seed, epochs, inputs, labels, tiles, scored):
     model.load_state_dict(best_state)
     x_all, _ = windows_of(inputs, labels, scored.tile_id, scored.crop_row, scored.crop_col)
     extra = {"device": device, "parameters": sum(p.numel() for p in model.parameters()),
+             "epochs_max": epochs, "lr": lr, "weight_decay": weight_decay,
              "best_epoch": best_epoch, "best_validation_ap": round(best_ap, 4), "history": history}
     return predict(x_all), extra, best_state
 
 
-def save(model, seed, scores, tile_ids, seconds, extra=None, state=None):
+def save(name, model, seed, scores, tile_ids, seconds, extra=None, state=None):
     """Write a model's scores, the tiles they belong to, and a short record of how they were made."""
-    out = SCORES_DIR / f"{model}_seed{seed}"
+    out = SCORES_DIR / name
     out.mkdir(parents=True, exist_ok=True)
     np.save(out / "scores.npy", np.asarray(scores, dtype=np.float32))
     np.save(out / "tile_ids.npy", np.asarray(tile_ids))
-    meta = {"model": model, "seed": seed, "commit": git_commit(), "seconds": round(seconds, 1), **(extra or {})}
+    meta = {"model": model, "seed": seed, "seconds": round(seconds, 1), **(extra or {})}
     (out / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
     if state is not None:
         import torch
 
         torch.save(state, out / "model.pt")
     print(f"saved scores for {len(tile_ids)} crops to {out}/")
-
-
-def git_commit():
-    """The current git commit, so every result can be traced to the code that made it."""
-    try:
-        return subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
-        return "unknown"
 
 
 if __name__ == "__main__":

@@ -151,8 +151,8 @@ All rules use the same U-Net scores and the same calibration crops.
 
 **Training.**
 - Loss: binary cross-entropy on valid pixels.
-- Optimiser: AdamW, learning rate 1e-3, cosine schedule.
-- Length: up to 50 epochs, with early stopping on validation average precision. Never stop on calibration data.
+- Optimiser: AdamW, learning rate 1e-3, weight decay 0.01, cosine schedule.
+- Length: 15 epochs (the learning rate shrinks to zero over them), keeping the epoch with the best validation average precision. Never use calibration data for this. These settings were tuned on validation (decision 23).
 - Inputs: random 32 × 32 crops, in batches of 64–256.
 - Hardware: PyTorch on MPS or CPU.
 - Seeds: three for the main U-Net if time allows, and at least one.
@@ -176,7 +176,7 @@ All rules use the same U-Net scores and the same calibration crops.
 - **Compared with:**
   - the single standard cutoff, for which we measure how many populated fire pixels it misses;
   - flagging every populated pixel plus the standard cutoff elsewhere. This is the trivial way to never miss in a populated cell, and the two-cutoff version must flag less.
-- **Check first (week 1):** count how many calibration crops contain populated fire pixels. If there are fewer than about 200, the populated cutoff is weak. In that case, shrink the experiment and report the shortage as a finding. The week-1 check found 366 ([data §6](data.md)), so the experiment can go ahead.
+- **Check first (week 1):** count how many calibration crops contain populated fire pixels. If there are fewer than about 200, the populated cutoff is weak. In that case, shrink the experiment and report the shortage as a finding. The week-1 check found 209 of 937 ([data §6](data.md)), just enough for the experiment to go ahead.
 
 **Limits.**
 - "Exposure" here means GPWv4 population density at 1 km, a static census proxy. It is not people at risk, homes or lives.

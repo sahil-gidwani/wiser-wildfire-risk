@@ -8,7 +8,7 @@
 | **Anchor paper** | Dayan 2026 (arXiv:2603.22331), the CRC-on-NDWS preprint the proposal built on ([proposal-review](proposal-review.md)) |
 | **AP (average precision)** | The area under the precision–recall curve. Our main measure of how well a model ranks fire pixels. |
 | **AUROC** | The area under the ROC curve. It looks good for almost any model when 99 % of pixels are non-fire, so we use it only to compare with the anchor paper. |
-| **Calibration set** | Crops used only to choose the cutoff: the official NDWS eval split |
+| **Calibration set** | Crops used only to choose the cutoff: half of the official NDWS eval split |
 | **Capped miss rate** | A pooled miss rate in which a crop with more than `c` fire pixels counts as if it had `c`. WISER's main target. |
 | **Conformal risk control (CRC)** | A method (Angelopoulos et al. 2024) that picks a cutoff from calibration data so that the expected loss on a new example is at most α |
 | **Crop** | A 32 × 32 window of a tile. Our unit of analysis. |
@@ -27,7 +27,7 @@
 | **RCPS** | A variant of CRC whose guarantee holds with probability ≥ 1 − δ over the calibration set |
 | **Tile** | One NDWS sample: 64 × 64 pixels at 1 km |
 | **Unknown pixel** | A pixel labelled −1 (cloud, or not processed). It is never counted. |
-| **Validation set** | Crops carved from the training data, used for every choice |
+| **Validation set** | Crops used for every choice: the other half of the official eval split, from weeks the model never trains on |
 | **Window** | The 8-day block used by the official NDWS split: 7 sampled days plus 1 buffer day |
 | **WISER rule** | Our calibration rule ([method §4](method.md)) |
 
