@@ -145,14 +145,14 @@ All rules use the same U-Net scores and the same calibration crops.
 | Flag everything | — | Upper bound on area, and the fallback |
 | Persistence | Tomorrow = today | The standard reference. Reproducing its published precision and recall checks our metric code. |
 | Distance buffers | Flag within r km of today's fire, with r set by the WISER rule. Two versions: distance measured inside the window only (`buffer_window`, the same view the models get) or on the whole tile (`buffer_tile`). | Shows how much learning adds over "near today's fire" |
-| Gradient-boosted trees | LightGBM (Ke 2017), with scikit-learn's `HistGradientBoostingClassifier` as fallback; about 500 trees. Per-pixel features: the 12 inputs, distance to today's fire, and fire counts in the 3 × 3 and 7 × 7 neighbourhoods. | A simple learned baseline |
-| **Tiny U-Net** (main) | A U-Net (Ronneberger 2015) with about 470K parameters: 12 → 32 → 64 channels, 128 at the bottleneck, two decoder blocks with skip connections. The same size as the anchor paper's. | The main model |
+| **Gradient-boosted trees** (main, with the U-Net) | scikit-learn's `HistGradientBoostingClassifier` (LightGBM, Ke 2017, is an optional faster alternative); up to 500 trees of 63 leaves, stopping early when more trees stop helping. Per-pixel features: the 12 inputs, distance to today's fire, and how many pixels burn today in the 3 × 3 and 7 × 7 km around. Trained on every fire pixel of one random window per training tile plus a 5 % sample of the others, weighted back up. | A simple learned baseline |
+| **Tiny U-Net** (main, with the trees) | A U-Net (Ronneberger 2015) with about 470K parameters: 12 → 32 → 64 channels, 128 at the bottleneck, two decoder blocks with skip connections. The same size as the anchor paper's. | The main model |
 | Fire-only U-Net | The same U-Net with today's fire mask as its only input | Tests whether the other 11 inputs help |
 
 **Training.**
 - Loss: binary cross-entropy on valid pixels.
 - Optimiser: AdamW, learning rate 1e-3, weight decay 0.01, cosine schedule.
-- Length: 15 epochs (the learning rate shrinks to zero over them), keeping the epoch with the best validation average precision. Never use calibration data for this. These settings were tuned on validation (decision 23).
+- Length: 15 epochs (the learning rate shrinks to zero over them), keeping the epoch that needs the least land for WISER (capped) to keep the 10 % promise on the validation crops (decision 24). Never use calibration data for this. These settings were tuned on validation (decision 23).
 - Inputs: random 32 × 32 crops, in batches of 64–256.
 - Hardware: PyTorch on MPS or CPU.
 - Seeds: three for the main U-Net if time allows, and at least one.

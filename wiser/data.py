@@ -123,11 +123,11 @@ def scale(x, stats=None):
     return (np.clip(x, low, high) - mean) / std
 
 
-def windows_of(inputs, labels, tile_ids, rows, cols):
-    """Scaled inputs [n, 12, 32, 32] and labels [n, 32, 32] for the given tiles and window corners."""
+def windows_of(inputs, labels, tile_ids, rows, cols, scaled=True):
+    """Inputs [n, 12, 32, 32] (scaled unless scaled=False) and labels [n, 32, 32] for the given windows."""
     x = np.stack([inputs[t, :, r:r + CROP, c:c + CROP] for t, r, c in zip(tile_ids, rows, cols)])
     y = np.stack([labels[t, r:r + CROP, c:c + CROP] for t, r, c in zip(tile_ids, rows, cols)])
-    return scale(x), y
+    return (scale(x) if scaled else x), y
 
 
 def new_fire(labels, fire_today):

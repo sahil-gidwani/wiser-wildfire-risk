@@ -89,10 +89,26 @@ A teammate who didn't write the rule reviews it.
   - With WISER capped it flags 84 % ± 3 of the land at 5 % and 69 % ± 4 at 10 % (missed 4.4 % and 9.2 %), against 72 % and 59 % for the full U-Net.
   - So the other 11 layers (weather, fuel dryness, vegetation, terrain, population) do help: about 10-12 points less land at the same promise, several times the seed spread. This differs from reports that a fire-only model matches the full one (Fitzgerald 2023, *reported*).
   - With the same information, the fire-only U-Net beats the window-only buffer by far (84 % vs 100 % at 5 %), but it flags more than the whole-tile buffer (76 %), which also sees today's fire outside the window.
+- **Tree model** (scikit-learn gradient-boosted trees on 15 per-pixel features; seeds 0-2, 13 s each, 60-111 trees):
+  - Validation AP 0.164 (0.180 / 0.155 / 0.156), lower than the U-Net's 0.243.
+  - Yet with WISER capped it flags the least land of all: 62 % ± 1 at 5 % and 49 % ± 1 at 10 % (missed 5.1 % and 10.1 %), against 72 % and 59 % for the U-Net.
+  - Why: AP rewards ranking the easy fire pixels (next to today's fire) at the top; keeping a 90-95 % promise depends on the hardest ones. 31 % of validation windows have no fire today inside them and hold 14 % of tomorrow's fire. To catch 90 % of all fire, the trees catch 92 % of the fire in those windows, while U-Net seeds catch only 60-66 %: the trees use each pixel's own weather and fuel, while the U-Net mostly predicts fire next to today's fire.
+  - So a model chosen for the best AP is not the model that keeps the promise with the least land. Selecting and early-stopping models on validation flagged area at the target would match the project's goal better (decision 24, adopted).
+- **U-Net and fire-only U-Net chosen by land needed** (decision 24; 3 seeds each; the AP-chosen runs are kept in `outputs/tuning/`):
+
+  | Model (3 seeds) | AP | 5 %: missed / flagged | 10 %: missed / flagged |
+  |---|---|---|---|
+  | Trees | 0.164 | 5.1 % / 62 % ± 1 | 10.1 % / 49 % ± 1 |
+  | U-Net, chosen by land | 0.237 | 4.4 % / 74 % ± 1 | 8.6 % / 60 % ± 1.5 |
+  | U-Net, chosen by AP | 0.243 | 4.9 % / 72 % ± 1 | 9.3 % / 59 % ± 1.5 |
+  | Fire-only U-Net, chosen by land | 0.201 | 4.3 % / 82 % ± 0.3 | 9.0 % / 67 % ± 0.5 |
+
+  - Measured on the validation half alone, the land-chosen epochs looked better (56.7 % of the land at 10 %, against 58.7 %), but with the cutoff picked on the calibration half they flag about the same as the AP-chosen ones: the differences are within the seed spread. Choosing the best-looking epoch on validation flatters it there.
+  - So the U-Net's handicap is structural (fire away from today's fire), not a matter of which epoch is kept. The trees stay about 10 points ahead on land; the U-Net stays the best ranker. Decision 24 stays, because it measures what the project cares about.
 
 ### 2 · Does it hold? (RQ1)
 
-- **Do:** run the rules of [method §5](method.md) on the Tiny U-Net's scores at α = 5 % and 10 %. Use validity checks 1 and 2.
+- **Do:** run the rules of [method §5](method.md) on the scores of both main models (trees and Tiny U-Net) at α = 5 % and 10 %. Use validity checks 1 and 2.
 - **Output:**
   - for each rule: realised per-crop, pooled, capped and new-fire miss rates, and flagged area;
   - a plot of the average realised miss rate minus α against calibration-set size.
@@ -108,11 +124,11 @@ A teammate who didn't write the rule reviews it.
   - flagged area for each model, plus the buffer radius in km;
   - AP for each model;
   - a plot of flagged area against α.
-- **Expect:** the U-Net flags less than the buffer and the trees; the fire-only U-Net comes close to the full one.
+- **Expect** (from the validation previews): the trees flag the least land, then the U-Net, then the whole-tile buffer; the fire-only U-Net needs clearly more land than the full one.
 
 ### 4 · Where are the misses, and who is near them? (RQ3)
 
-**Miss breakdown** for the U-Net and the buffer, at the WISER cutoff:
+**Miss breakdown** for both main models and the buffer, at the WISER cutoff:
 - misses by distance from today's fire (0, 1, 2–3, > 3 km);
 - misses on new versus continuing fire;
 - four example crops, picked by a rule fixed in advance:
@@ -146,7 +162,7 @@ The wording rules below apply to the demo too.
 ## Fix before experiment 2
 
 Before the first calibration that touches test data, record these in the decisions table in [plan](plan.md):
-- the main model;
+- the main models (trees and Tiny U-Net) and how models are chosen (decision 24);
 - the α values;
 - the cap `c`;
 - τ and α_pop;

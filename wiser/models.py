@@ -3,7 +3,8 @@
 - Persistence: tomorrow = today.
 - Distance buffers: minus the distance to the nearest pixel burning today, measured either inside
   the window only (what the learned models see) or on the whole tile.
-- Gradient-boosted trees on per-pixel features (scikit-learn, or LightGBM if installed). Not written yet.
+- Gradient-boosted trees (scikit-learn) on per-pixel features: the 12 inputs plus three clues about
+  today's fire nearby, because a tree looks at one pixel at a time.
 - Tiny U-Net (about 470K parameters), also trained with today's fire mask as its only input.
 
 Scores work like logits: a cutoff of 0 is the "probability 0.5" habit. For persistence that flags
@@ -16,7 +17,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from wiser.data import crop, distance_to_fire
+from wiser.data import FIRE_TODAY, INPUTS, crop, distance_to_fire
 
 NO_FIRE_DISTANCE = 1000.0  # km; stands in for "no fire in sight", far beyond a tile's 90 km diagonal
 
@@ -48,6 +49,24 @@ def buffer_tile(fire_today, rows, cols):
 
 
 BASELINES = {"persistence": persistence, "buffer_window": buffer_window, "buffer_tile": buffer_tile}
+
+TREE_FEATURES = INPUTS + ("distance_to_fire", "burning_within_3x3", "burning_within_7x7")
+
+
+def pixel_features(x):
+    """Per-pixel features for the tree model: raw windows [n, 12, 32, 32] -> [n * 32 * 32, 15].
+
+    The 12 raw inputs, the distance in km to the nearest pixel burning today inside the window
+    (NO_FIRE_DISTANCE if none), and how many pixels burn today in the 3 x 3 and 7 x 7 km around it.
+    """
+    from scipy.ndimage import uniform_filter
+
+    burning = (x[:, FIRE_TODAY] == 1).astype(np.float32)
+    distance = np.minimum(distance_to_fire(x[:, FIRE_TODAY]), NO_FIRE_DISTANCE)
+    near3 = np.rint(uniform_filter(burning, size=(1, 3, 3), mode="constant") * 9)
+    near7 = np.rint(uniform_filter(burning, size=(1, 7, 7), mode="constant") * 49)
+    features = np.concatenate([np.moveaxis(x, 1, -1), np.stack([distance, near3, near7], axis=-1)], axis=-1)
+    return features.reshape(-1, len(TREE_FEATURES)).astype(np.float32)
 
 
 def double_conv(c_in, c_out):
